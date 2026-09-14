@@ -53,7 +53,6 @@
       padding-bottom: 30px;
     }
 
-    /* 使用 fixed 強制百分之百固定在螢幕最上方 */
     .fixed-header-group {
       position: fixed;
       top: 0;
@@ -70,7 +69,6 @@
       margin: 0 auto;
     }
 
-    /* 頂部 Header 卡片 */
     .header-card {
       background: linear-gradient(135deg, #1F385C 0%, #2B4C7E 100%);
       color: #FFFFFF;
@@ -132,7 +130,6 @@
       color: #EBF2FA;
     }
 
-    /* 日期膠囊頁籤列 */
     .date-tabs-wrapper {
       padding: 8px 12px;
       max-width: 600px;
@@ -186,11 +183,10 @@
     .tab-pill.active .pill-date { color: #FFFFFF; }
     .tab-pill.active .pill-day { color: #D0E1F9; }
 
-    /* 主要內容區：設定 paddingTop 防止被固定標題遮擋 */
     main {
       max-width: 600px;
       margin: 0 auto;
-      padding: 185px 12px 0 12px; /* 留出頂部固定區高度 */
+      padding: 185px 12px 0 12px;
     }
 
     .section-title {
@@ -203,13 +199,11 @@
       margin-bottom: 12px;
     }
 
-    /* 主要時間軸區域 */
     .timeline-container {
       position: relative;
-      padding-left: 68px; /* 左側留空放置時間與軌道 */
+      padding-left: 68px;
     }
 
-    /* 縱向連線 */
     .timeline-container::before {
       content: '';
       position: absolute;
@@ -226,7 +220,6 @@
       margin-bottom: 24px;
     }
 
-    /* 開始時間 (卡片左上方) */
     .time-start {
       position: absolute;
       left: -68px;
@@ -239,7 +232,6 @@
       font-family: "Microsoft JhengHei", sans-serif;
     }
 
-    /* 結束時間 (卡片左下方) */
     .time-end {
       position: absolute;
       left: -68px;
@@ -252,7 +244,6 @@
       font-family: "Microsoft JhengHei", sans-serif;
     }
 
-    /* 軌道圓圈 */
     .timeline-node {
       position: absolute;
       left: -14px;
@@ -266,7 +257,6 @@
       transform: translateX(-50%);
     }
 
-    /* 行程卡片 */
     .card {
       background-color: var(--card-bg);
       border-radius: 16px;
@@ -353,11 +343,6 @@
       font-family: "Microsoft JhengHei", "微軟正黑體", sans-serif;
     }
 
-    .map-btn:active {
-      background-color: #DCE8F8;
-    }
-
-    /* 景點圖片放置於最下方 */
     .card-image-wrapper {
       width: 100%;
       max-height: 220px;
@@ -373,6 +358,18 @@
       max-height: 220px;
       object-fit: cover;
       display: block;
+    }
+
+    .is-traffic-img-wrapper {
+      max-height: none !important;
+      background-color: transparent !important;
+    }
+
+    .is-traffic-img {
+      max-height: none !important;
+      height: auto !important;
+      object-fit: contain !important;
+      border-radius: 12px;
     }
 
     .empty-state {
@@ -395,7 +392,6 @@
 </head>
 <body>
 
-  <!-- 強制固定在螢幕最頂部的固定區塊 (fixed) -->
   <div class="fixed-header-group">
     <div class="header-content-wrapper">
       <div class="header-card">
@@ -416,7 +412,6 @@
         </div>
       </div>
 
-      <!-- 日期圓角膠囊按鈕 -->
       <div class="date-tabs-wrapper">
         <div class="date-tabs" id="date-tabs">
           <div class="tab-pill active" onclick="switchDay(1)">
@@ -444,25 +439,26 @@
     </div>
   </div>
 
-  <!-- 主要時間軸區域 -->
   <main>
     <div class="section-title">
       <i class="fa-solid fa-route"></i> 行程時光軸
     </div>
     <div class="timeline-container" id="timeline-container">
-      <!-- 景點卡片動態渲染 -->
     </div>
   </main>
 
   <script>
-    // 預設 Google Sheet CSV 網址
+    if ('scrollRestoration' in history) {
+      history.scrollRestoration = 'manual';
+    }
+
     const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQdq6v4aq0c1TmFT2ufC4wXfFp2rkUjphdP6XrYKYWq6s06L1wcA39LOHRPQ3snn46sPj4F7HFTqDG2/pub?gid=1410628487&single=true&output=csv";
 
     let currentDay = 1;
     let itineraryData = {};
 
     window.onload = function() {
-      // 讀取本地快取
+      window.scrollTo(0, 0);
       const cached = localStorage.getItem('kyushu_timeline_data');
       if (cached) {
         try {
@@ -470,7 +466,6 @@
           renderDay(currentDay);
         } catch(e) {}
       }
-      // 自動同步 CSV
       fetchCSVData(false);
     };
 
@@ -521,19 +516,12 @@
         const cost = row[8] ? row[8].trim() : '';
         const note = row[9] ? row[9].trim() : '';
         const mapUrl = row[10] ? row[10].trim() : '';
-        const imageUrl = row[11] ? processImageUrl(row[11].trim()) : '';
+        
+        // 傳入 url, title 與 category 交給新版的 processImageUrl 處理
+        const imageUrl = processImageUrl(row[11] ? row[11].trim() : '', title, category);
 
         newItinerary[dayNum].push({
-          timeStart: timeStart,
-          timeEnd: timeEnd,
-          title: title,
-          category: category,
-          desc: desc,
-          duration: duration,
-          cost: cost,
-          note: note,
-          mapUrl: mapUrl,
-          imageUrl: imageUrl
+          timeStart, timeEnd, title, category, desc, duration, cost, note, mapUrl, imageUrl
         });
       }
 
@@ -542,15 +530,29 @@
       renderDay(currentDay);
     }
 
-    function processImageUrl(url) {
-      if (!url) return '';
-      if (url.includes('drive.google.com') && url.includes('/d/')) {
-        const match = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
-        if (match && match[1]) {
-          return `https://drive.google.com/uc?export=view&id=${match[1]}`;
+    // 🌟 全新升級的網址處理邏輯
+    function processImageUrl(url, title, category) {
+      // 1. 如果 Excel 中「有」填寫圖片資料
+      if (url) {
+        if (url.includes('drive.google.com') && url.includes('/d/')) {
+          const match = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
+          if (match && match[1]) {
+            return `https://drive.google.com/uc?export=view&id=${match[1]}`;
+          }
         }
+        // 👉 如果只填了檔名 (例如: 某某.jpg)，自動加上您的 GitHub 網址前綴
+        if (!url.startsWith('http')) {
+          return `https://pudding0908.github.io/kyushu-trip_aunt/${url}`;
+        }
+        return url;
       }
-      return url;
+      
+      // 2. 如果 Excel 圖片是「空的」，且分類是「交通」，自動套用「標題.jpg」
+      if (!url && category === '交通') {
+        return `https://pudding0908.github.io/kyushu-trip_aunt/${title}.jpg`;
+      }
+      
+      return '';
     }
 
     function parseCSVRow(text) {
@@ -583,7 +585,7 @@
         }
       });
       renderDay(day);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      window.scrollTo(0, 0);
     }
 
     function renderDay(day) {
@@ -611,19 +613,20 @@
         if (item.cost) metaHtml += `<div class="meta-item"><i class="fa-solid fa-yen-sign"></i> 費用: <strong>${item.cost}</strong></div>`;
         if (item.note) metaHtml += `<div class="meta-item" style="width:100%;"><i class="fa-regular fa-note-sticky"></i> 備註: ${item.note}</div>`;
 
-        // 圖片區塊
+        const isTraffic = (item.category === '交通');
+        const imgWrapperClass = isTraffic ? 'card-image-wrapper is-traffic-img-wrapper' : 'card-image-wrapper';
+        const imgClass = isTraffic ? 'card-image is-traffic-img' : 'card-image';
+
         let imgHtml = '';
         if (item.imageUrl) {
           imgHtml = `
-            <div class="card-image-wrapper">
-              <img src="${item.imageUrl}" class="card-image" alt="${item.title}" onerror="this.parentElement.style.display='none'">
+            <div class="${imgWrapperClass}">
+              <img src="${item.imageUrl}" class="${imgClass}" alt="${item.title}" referrerpolicy="no-referrer" crossorigin="anonymous" onerror="this.parentElement.style.display='none'">
             </div>
           `;
         }
 
         const mapSearchUrl = item.mapUrl || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(item.title)}`;
-
-        // 時間頭尾佈局 HTML
         const startHtml = item.timeStart ? `<div class="time-start">${item.timeStart}</div>` : '';
         const endHtml = item.timeEnd ? `<div class="time-end">${item.timeEnd}</div>` : '';
 
