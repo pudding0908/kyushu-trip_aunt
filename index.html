@@ -517,7 +517,6 @@
         const note = row[9] ? row[9].trim() : '';
         const mapUrl = row[10] ? row[10].trim() : '';
         
-        // 傳入 url, title 與 category 交給新版的 processImageUrl 處理
         const imageUrl = processImageUrl(row[11] ? row[11].trim() : '', title, category);
 
         newItinerary[dayNum].push({
@@ -530,24 +529,26 @@
       renderDay(currentDay);
     }
 
-    // 🌟 全新升級的網址處理邏輯
+    // 🌟 修正後的完美圖片網址處理邏輯
     function processImageUrl(url, title, category) {
-      // 1. 如果 Excel 中「有」填寫圖片資料
+      // 1. 如果 Excel 有填寫內容
       if (url) {
+        // 如果是 Google 雲端硬碟連結，自動轉換
         if (url.includes('drive.google.com') && url.includes('/d/')) {
           const match = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
           if (match && match[1]) {
             return `https://drive.google.com/uc?export=view&id=${match[1]}`;
           }
         }
-        // 👉 如果只填了檔名 (例如: 某某.jpg)，自動加上您的 GitHub 網址前綴
-        if (!url.startsWith('http')) {
-          return `https://pudding0908.github.io/kyushu-trip_aunt/${url}`;
+        // 👉 如果原本就是完整的公開網路網址 (http:// 或 https://)，直接原封不動回傳！
+        if (url.startsWith('http://') || url.startsWith('https://')) {
+          return url;
         }
-        return url;
+        // 👉 如果只寫了簡單檔名，才自動拼上 GitHub 網址
+        return `https://pudding0908.github.io/kyushu-trip_aunt/${url}`;
       }
       
-      // 2. 如果 Excel 圖片是「空的」，且分類是「交通」，自動套用「標題.jpg」
+      // 2. 如果 Excel 圖片欄位是「空的」，且分類是「交通」，自動套用 GitHub 的「標題.jpg」
       if (!url && category === '交通') {
         return `https://pudding0908.github.io/kyushu-trip_aunt/${title}.jpg`;
       }
