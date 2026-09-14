@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>日本九州行 - 隨行手帳</title>
+  
+  <!-- FontAwesome 圖標 -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <style>
+    /* ==========================================
+       質感藍色調 (Classic Indigo/Navy & Slate)
+       字體指定：微軟正黑體 (Microsoft JhengHei)
+       ========================================== */
+    :root {
+      --bg-base: #F4F6F9;         /* 柔和淺藍灰底色 */
+      --card-bg: #FFFFFF;         /* 卡片純白 */
+      --primary-blue: #2B4C7E;    /* 經典質感藍 */
+      --accent-badge: #EBF2FA;    /* 藍色膠囊底色 */
+      --text-dark: #1C2833;       /* 深藍黑 (高對比大字) */
+      --text-muted: #566573;      /* 灰色說明字 */
+      --time-text: #8A99AD;       /* 時間軸時間灰色 */
+      --timeline-line: #D0D7DE;   /* 時間軸線條 */
+      --border-color: #E2E8F0;    /* 邊框線 */
+      --shadow-card: 0 4px 12px rgba(43, 76, 126, 0.08);
+
+      /* 分類膠囊顏色 */
+      --tag-spot: #2E5B88;     /* 景點：經典藍 */
+      --tag-food: #A85D32;     /* 餐飲：暖橘棕 */
+      --tag-stay: #3B6B59;     /* 住宿：翡翠綠 */
+      --tag-traffic: #6B4E71;  /* 交通：雅緻紫 */
+      --tag-shop: #B23A48;     /* 購物：酒紅 */
+      --tag-important: #D4AC0D;/* 重要：芥末金 */
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html, body {
+      width: 100%;
+      max-width: 100%;
+      overflow-x: hidden;
+      background-color: var(--bg-base);
+      font-family: "Microsoft JhengHei", "微軟正黑體", "Heiti TC", "sans-serif";
+      color: var(--text-dark);
+      line-height: 1.5;
+      font-size: 17px;
+      padding-bottom: 30px;
+    }
+
+    /* 使用 fixed 強制百分之百固定在螢幕最上方 */
+    .fixed-header-group {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      width: 100%;
+      z-index: 999;
+      background-color: var(--bg-base);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    }
+
+    .header-content-wrapper {
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    /* 頂部 Header 卡片 */
+    .header-card {
+      background: linear-gradient(135deg, #1F385C 0%, #2B4C7E 100%);
+      color: #FFFFFF;
+      padding: 14px 18px 12px 18px;
+      border-bottom-left-radius: 16px;
+      border-bottom-right-radius: 16px;
+    }
+
+    .header-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+
+    .header-subtitle {
+      font-size: 13px;
+      letter-spacing: 1.5px;
+      color: #C5D8F0;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .sync-btn {
+      background: rgba(255, 255, 255, 0.18);
+      border: 1px solid rgba(255, 255, 255, 0.35);
+      color: #FFFFFF;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: bold;
+      font-family: "Microsoft JhengHei", "微軟正黑體", sans-serif;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+    }
+
+    .header-title {
+      font-size: 20px;
+      font-weight: bold;
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .header-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background-color: rgba(255, 255, 255, 0.18);
+      backdrop-filter: blur(4px);
+      padding: 2px 10px;
+      border-radius: 20px;
+      font-size: 12px;
+      color: #EBF2FA;
+    }
+
+    /* 日期膠囊頁籤列 */
+    .date-tabs-wrapper {
+      padding: 8px 12px;
+      max-width: 600px;
+      margin: 0 auto;
+      background-color: var(--bg-base);
+    }
+
+    .date-tabs {
+      display: flex;
+      justify-content: space-between;
+      gap: 6px;
+      width: 100%;
+    }
+
+    .tab-pill {
+      flex: 1;
+      background-color: #FFFFFF;
+      border: 1.5px solid #D5E1ED;
+      border-radius: 12px;
+      padding: 6px 0;
+      text-align: center;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.03);
+      transition: all 0.2s ease;
+    }
+
+    .tab-pill .pill-date {
+      font-size: 15px;
+      font-weight: bold;
+      color: var(--primary-blue);
+      line-height: 1.1;
+    }
+
+    .tab-pill .pill-day {
+      font-size: 11px;
+      font-weight: bold;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .tab-pill.active {
+      background-color: var(--primary-blue);
+      border-color: var(--primary-blue);
+      box-shadow: 0 3px 8px rgba(43, 76, 126, 0.3);
+    }
+
+    .tab-pill.active .pill-date { color: #FFFFFF; }
+    .tab-pill.active .pill-day { color: #D0E1F9; }
+
+    /* 主要內容區：設定 paddingTop 防止被固定標題遮擋 */
+    main {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 185px 12px 0 12px; /* 留出頂部固定區高度 */
+    }
+
+    .section-title {
+      font-size: 18px;
+      font-weight: bold;
+      color: var(--primary-blue);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    /* 主要時間軸區域 */
+    .timeline-container {
+      position: relative;
+      padding-left: 68px; /* 左側留空放置時間與軌道 */
+    }
+
+    /* 縱向連線 */
+    .timeline-container::before {
+      content: '';
+      position: absolute;
+      left: 54px;
+      top: 18px;
+      bottom: 24px;
+      width: 2px;
+      background-color: var(--timeline-line);
+      z-index: 1;
+    }
+
+    .timeline-item {
+      position: relative;
+      margin-bottom: 24px;
+    }
+
+    /* 開始時間 (卡片左上方) */
+    .time-start {
+      position: absolute;
+      left: -68px;
+      top: 2px;
+      width: 50px;
+      text-align: right;
+      font-size: 15px;
+      font-weight: bold;
+      color: var(--time-text);
+      font-family: "Microsoft JhengHei", sans-serif;
+    }
+
+    /* 結束時間 (卡片左下方) */
+    .time-end {
+      position: absolute;
+      left: -68px;
+      bottom: 2px;
+      width: 50px;
+      text-align: right;
+      font-size: 15px;
+      font-weight: bold;
+      color: var(--time-text);
+      font-family: "Microsoft JhengHei", sans-serif;
+    }
+
+    /* 軌道圓圈 */
+    .timeline-node {
+      position: absolute;
+      left: -14px;
+      top: 9px;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background-color: #FFFFFF;
+      border: 3px solid var(--primary-blue);
+      z-index: 2;
+      transform: translateX(-50%);
+    }
+
+    /* 行程卡片 */
+    .card {
+      background-color: var(--card-bg);
+      border-radius: 16px;
+      border: 1px solid var(--border-color);
+      box-shadow: var(--shadow-card);
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 8px;
+    }
+
+    .card-title {
+      font-size: 20px;
+      font-weight: bold;
+      color: var(--text-dark);
+      line-height: 1.35;
+      flex: 1;
+    }
+
+    .category-tag {
+      font-size: 12px;
+      font-weight: bold;
+      color: #FFFFFF;
+      padding: 3px 8px;
+      border-radius: 12px;
+      white-space: nowrap;
+    }
+
+    .tag-景點 { background-color: var(--tag-spot); }
+    .tag-餐飲, .tag-美食 { background-color: var(--tag-food); }
+    .tag-住宿 { background-color: var(--tag-stay); }
+    .tag-交通 { background-color: var(--tag-traffic); }
+    .tag-購物 { background-color: var(--tag-shop); }
+    .tag-重要 { background-color: var(--tag-important); }
+
+    .card-desc {
+      font-size: 15px;
+      color: var(--text-muted);
+      line-height: 1.45;
+    }
+
+    .card-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      font-size: 14px;
+      color: var(--text-muted);
+      background-color: #F8FAFC;
+      padding: 8px 12px;
+      border-radius: 8px;
+      border: 1px dashed var(--border-color);
+    }
+
+    .meta-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .meta-item strong {
+      color: var(--text-dark);
+    }
+
+    .map-btn {
+      background-color: var(--accent-badge);
+      color: var(--primary-blue);
+      border: 1px solid #D0E1F9;
+      padding: 8px 12px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: bold;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      text-decoration: none;
+      font-family: "Microsoft JhengHei", "微軟正黑體", sans-serif;
+    }
+
+    .map-btn:active {
+      background-color: #DCE8F8;
+    }
+
+    /* 景點圖片放置於最下方 */
+    .card-image-wrapper {
+      width: 100%;
+      max-height: 220px;
+      border-radius: 12px;
+      overflow: hidden;
+      margin-top: 6px;
+      background-color: #E2E8F0;
+    }
+
+    .card-image {
+      width: 100%;
+      height: 100%;
+      max-height: 220px;
+      object-fit: cover;
+      display: block;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--text-muted);
+    }
+
+    .empty-state i {
+      font-size: 40px;
+      color: var(--border-color);
+      margin-bottom: 10px;
+    }
+
+    .spin {
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin { 100% { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+
+  <!-- 強制固定在螢幕最頂部的固定區塊 (fixed) -->
+  <div class="fixed-header-group">
+    <div class="header-content-wrapper">
+      <div class="header-card">
+        <div class="header-top">
+          <div class="header-subtitle">
+            <i class="fa-solid fa-sparkles"></i> 旅遊手帳 TRIP MEMO
+          </div>
+          <button class="sync-btn" onclick="fetchCSVData(true)">
+            <i class="fa-solid fa-rotate" id="sync-icon"></i>
+            <span>同步 Excel</span>
+          </button>
+        </div>
+        <div class="header-title">
+          <i class="fa-solid fa-plane"></i> 日本九州行
+        </div>
+        <div class="header-pill">
+          <i class="fa-regular fa-calendar-days"></i> 九州 2026/09/17 - 09/21
+        </div>
+      </div>
+
+      <!-- 日期圓角膠囊按鈕 -->
+      <div class="date-tabs-wrapper">
+        <div class="date-tabs" id="date-tabs">
+          <div class="tab-pill active" onclick="switchDay(1)">
+            <span class="pill-date">9/17</span>
+            <span class="pill-day">Day 1</span>
+          </div>
+          <div class="tab-pill" onclick="switchDay(2)">
+            <span class="pill-date">9/18</span>
+            <span class="pill-day">Day 2</span>
+          </div>
+          <div class="tab-pill" onclick="switchDay(3)">
+            <span class="pill-date">9/19</span>
+            <span class="pill-day">Day 3</span>
+          </div>
+          <div class="tab-pill" onclick="switchDay(4)">
+            <span class="pill-date">9/20</span>
+            <span class="pill-day">Day 4</span>
+          </div>
+          <div class="tab-pill" onclick="switchDay(5)">
+            <span class="pill-date">9/21</span>
+            <span class="pill-day">Day 5</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 主要時間軸區域 -->
+  <main>
+    <div class="section-title">
+      <i class="fa-solid fa-route"></i> 行程時光軸
+    </div>
+    <div class="timeline-container" id="timeline-container">
+      <!-- 景點卡片動態渲染 -->
+    </div>
+  </main>
+
+  <script>
+    // 預設 Google Sheet CSV 網址
+    const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQdq6v4aq0c1TmFT2ufC4wXfFp2rkUjphdP6XrYKYWq6s06L1wcA39LOHRPQ3snn46sPj4F7HFTqDG2/pub?gid=1410628487&single=true&output=csv";
+
+    let currentDay = 1;
+    let itineraryData = {};
+
+    window.onload = function() {
+      // 讀取本地快取
+      const cached = localStorage.getItem('kyushu_timeline_data');
+      if (cached) {
+        try {
+          itineraryData = JSON.parse(cached);
+          renderDay(currentDay);
+        } catch(e) {}
+      }
+      // 自動同步 CSV
+      fetchCSVData(false);
+    };
+
+    function fetchCSVData(isManual = false) {
+      const syncIcon = document.getElementById('sync-icon');
+      if (syncIcon) syncIcon.classList.add('spin');
+
+      fetch(CSV_URL)
+        .then(res => {
+          if (!res.ok) throw new Error("讀取失敗");
+          return res.text();
+        })
+        .then(csvText => {
+          parseCSVAndSave(csvText);
+          if (isManual) alert("Excel 行程與圖片同步更新成功！");
+        })
+        .catch(err => {
+          console.error(err);
+          if (isManual) alert("同步失敗，請確認網路連線。");
+        })
+        .finally(() => {
+          if (syncIcon) syncIcon.classList.remove('spin');
+        });
+    }
+
+    function parseCSVAndSave(csvText) {
+      const lines = csvText.split(/\r\n|\n/);
+      if (lines.length < 2) return;
+
+      const newItinerary = { 1: [], 2: [], 3: [], 4: [], 5: [] };
+
+      for (let i = 1; i < lines.length; i++) {
+        const row = parseCSVRow(lines[i]);
+        if (!row || row.length < 4) continue;
+
+        const dayNum = parseInt(row[1]) || parseInt(row[0]);
+        if (!dayNum || dayNum < 1 || dayNum > 5) continue;
+
+        const timeStart = row[2] ? row[2].trim() : '';
+        const timeEnd = row[3] ? row[3].trim() : '';
+
+        const title = row[4] ? row[4].trim() : '';
+        if (!title) continue;
+
+        const category = row[5] ? row[5].trim() : '景點';
+        const desc = row[6] ? row[6].trim() : '';
+        const duration = row[7] ? row[7].trim() : '';
+        const cost = row[8] ? row[8].trim() : '';
+        const note = row[9] ? row[9].trim() : '';
+        const mapUrl = row[10] ? row[10].trim() : '';
+        const imageUrl = row[11] ? processImageUrl(row[11].trim()) : '';
+
+        newItinerary[dayNum].push({
+          timeStart: timeStart,
+          timeEnd: timeEnd,
+          title: title,
+          category: category,
+          desc: desc,
+          duration: duration,
+          cost: cost,
+          note: note,
+          mapUrl: mapUrl,
+          imageUrl: imageUrl
+        });
+      }
+
+      itineraryData = newItinerary;
+      localStorage.setItem('kyushu_timeline_data', JSON.stringify(itineraryData));
+      renderDay(currentDay);
+    }
+
+    function processImageUrl(url) {
+      if (!url) return '';
+      if (url.includes('drive.google.com') && url.includes('/d/')) {
+        const match = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
+        if (match && match[1]) {
+          return `https://drive.google.com/uc?export=view&id=${match[1]}`;
+        }
+      }
+      return url;
+    }
+
+    function parseCSVRow(text) {
+      let p = '', c = '', r = [];
+      let q = false;
+      for (let i = 0; i < text.length; i++) {
+        c = text[i];
+        if (c === '"') {
+          if (q && text[i+1] === '"') { p += '"'; i++; }
+          else { q = !q; }
+        } else if (c === ',' && !q) {
+          r.push(p);
+          p = '';
+        } else {
+          p += c;
+        }
+      }
+      r.push(p);
+      return r;
+    }
+
+    function switchDay(day) {
+      currentDay = day;
+      const pills = document.querySelectorAll('.tab-pill');
+      pills.forEach((pill, idx) => {
+        if (idx + 1 === day) {
+          pill.classList.add('active');
+        } else {
+          pill.classList.remove('active');
+        }
+      });
+      renderDay(day);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function renderDay(day) {
+      const container = document.getElementById('timeline-container');
+      container.innerHTML = '';
+
+      const list = itineraryData[day] || [];
+
+      if (list.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <i class="fa-regular fa-folder-open"></i>
+            <p>第 ${day} 天暫無行程資料</p>
+          </div>
+        `;
+        return;
+      }
+
+      list.forEach(item => {
+        const itemEl = document.createElement('div');
+        itemEl.className = 'timeline-item';
+
+        let metaHtml = '';
+        if (item.duration) metaHtml += `<div class="meta-item"><i class="fa-regular fa-clock"></i> 歷時: <strong>${item.duration}</strong></div>`;
+        if (item.cost) metaHtml += `<div class="meta-item"><i class="fa-solid fa-yen-sign"></i> 費用: <strong>${item.cost}</strong></div>`;
+        if (item.note) metaHtml += `<div class="meta-item" style="width:100%;"><i class="fa-regular fa-note-sticky"></i> 備註: ${item.note}</div>`;
+
+        // 圖片區塊
+        let imgHtml = '';
+        if (item.imageUrl) {
+          imgHtml = `
+            <div class="card-image-wrapper">
+              <img src="${item.imageUrl}" class="card-image" alt="${item.title}" onerror="this.parentElement.style.display='none'">
+            </div>
+          `;
+        }
+
+        const mapSearchUrl = item.mapUrl || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(item.title)}`;
+
+        // 時間頭尾佈局 HTML
+        const startHtml = item.timeStart ? `<div class="time-start">${item.timeStart}</div>` : '';
+        const endHtml = item.timeEnd ? `<div class="time-end">${item.timeEnd}</div>` : '';
+
+        itemEl.innerHTML = `
+          ${startHtml}
+          ${endHtml}
+          <div class="timeline-node"></div>
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">${item.title}</div>
+              <span class="category-tag tag-${item.category}">${item.category}</span>
+            </div>
+            ${item.desc ? `<div class="card-desc">${item.desc}</div>` : ''}
+            ${metaHtml ? `<div class="card-meta">${metaHtml}</div>` : ''}
+            <div>
+              <a href="${mapSearchUrl}" target="_blank" class="map-btn">
+                <i class="fa-solid fa-location-dot"></i> 地圖導航
+              </a>
+            </div>
+            ${imgHtml}
+          </div>
+        `;
+
+        container.appendChild(itemEl);
+      });
+    }
+  </script>
+</body>
+</html>
